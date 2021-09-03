@@ -1,0 +1,8 @@
+section "home", rom0
+    db $DE
+    db $AD
+    db $BE
+    db $EF
+
+section "font", rom0[$4000]
+    incbin "font.bin"
