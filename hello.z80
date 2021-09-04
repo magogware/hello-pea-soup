@@ -1,8 +1,18 @@
-section "home", rom0
-    db $DE
-    db $AD
-    db $BE
-    db $EF
+section "start", rom0[$100]
+    nop
+    jp $150
+
+section "home", rom0[$150]
+    ld hl, $FF40
+    ld [hl], %00111000
+    ld hl, $8000
+    ld [hl], $DE
+    inc hl
+    ld [hl], $AD
+    inc hl
+    ld [hl], $BE
+    inc hl
+    ld [hl], $EF
 
 section "font", rom0[$4000]
     incbin "font.bin"
