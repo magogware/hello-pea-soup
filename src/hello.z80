@@ -15,4 +15,4 @@ section "home", rom0[$150]
     ld [hl], $EF
 
 section "font", rom0[$4000]
-    incbin "font.bin"
+    incbin "font/font.bin"
