@@ -4,6 +4,14 @@ section "start", rom0[$100]
 
 section "home", rom0[$150]
 Home:
+    ld hl, $FF41
+.wait            ; wait until we're in lcd mode 2
+    bit 0, [hl]
+    jp nz, .wait
+.wait2
+    bit 1, [hl]
+    jp z, .wait
+.begin
     ld hl, $FF40
     ld [hl], %00111000 ; turn lcd off
 
@@ -22,6 +30,8 @@ Home:
     jr nz, .row
     jr z, .tile
 .done
+    ld hl, $FF40
+    ld [hl], %00111001 ; turn lcd on
     nop
 
 section "font", rom0[$4000]
