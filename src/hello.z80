@@ -3,16 +3,27 @@ section "start", rom0[$100]
     jp $150
 
 section "home", rom0[$150]
+Home:
     ld hl, $FF40
-    ld [hl], %00111000
-    ld hl, $8000
-    ld [hl], $DE
-    inc hl
-    ld [hl], $AD
-    inc hl
-    ld [hl], $BE
-    inc hl
-    ld [hl], $EF
+    ld [hl], %00111000 ; turn lcd off
+
+    ld de, Font ; set de to font data
+    ld hl, $8000 ; set hl to VRAM
+    ld b, 26
+.tile
+    ld c, 16 ; loop through 16 bytes per tile
+    dec b
+    jr z, .done
+.row
+    ld a, [de]
+    inc de
+    ld [hli], a
+    dec c
+    jr nz, .row
+    jr z, .tile
+.done
+    nop
 
 section "font", rom0[$4000]
+Font:
     incbin "font/font.bin"
