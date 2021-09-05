@@ -4,20 +4,21 @@ section "start", rom0[$100]
 
 section "home", rom0[$150]
 Home:
+    ;di
     ld hl, $FF41
 .wait            ; wait until we're in lcd mode 2
     bit 0, [hl]
-    jp nz, .wait
+    jp z, .wait
 .wait2
     bit 1, [hl]
-    jp z, .wait
+    jp nz, .wait
 .begin
     ld hl, $FF40
-    ld [hl], %00111000 ; turn lcd off
+    ld [hl], %01110001 ; turn lcd off
 
     ld de, Font ; set de to font data
     ld hl, $8000 ; set hl to VRAM
-    ld b, 26
+    ld b, 27
 .tile
     ld c, 16 ; loop through 16 bytes per tile
     dec b
@@ -30,8 +31,19 @@ Home:
     jr nz, .row
     jr z, .tile
 .done
+    ld hl, $FF42
+    ld [hl], 0 ; set scroll x to 0
+    ld hl, $FF43
+    ld [hl], 0 ; set scroll y to 0
+    
+    ld hl, $9800
+    ld [hl], 0 ; load bg tile data
+
+    ld hl, $FF47
+    ld [hl], %11100100 ; set bg palette
+
     ld hl, $FF40
-    ld [hl], %00111001 ; turn lcd on
+    ld [hl], %11010001 ; turn lcd on
     nop
 
 section "font", rom0[$4000]
