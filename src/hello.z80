@@ -17,7 +17,7 @@ Home:
     ld [hl], %01110001 ; turn lcd off
 
     ld de, Font ; set de to font data
-    ld hl, $8000 ; set hl to VRAM
+    ld hl, $8010 ; set hl to VRAM + 16 (so we have a blank tile)
     ld b, 27
 .tile
     ld c, 16 ; loop through 16 bytes per tile
@@ -35,10 +35,44 @@ Home:
     ld [hl], 0 ; set scroll x to 0
     ld hl, $FF43
     ld [hl], 0 ; set scroll y to 0
-    
+.letters 
     ld hl, $9800
-    ld [hl], 0 ; load bg tile data
+    ld [hl], 12 ; load bg tile data
+    inc hl
+    ld [hl], 15
+    inc hl
+    ld [hl], 14
+    inc hl   
+    ld [hl], 7
+    inc hl 
+    inc hl
+    ld [hl], 12
+    inc hl
+    ld [hl], 9
+    inc hl
+    ld [hl], 22
+    inc hl
+    ld [hl], 5
+    inc hl
+    inc hl
+    ld [hl], 16
+    inc hl
+    ld [hl], 5
+    inc hl
+    ld [hl], 1
+    inc hl
+    inc hl
+    ld [hl], 19
+    inc hl
+    ld [hl], 15
+    inc hl
+    ld [hl], 21
+    inc hl
+    ld [hl], 16
+    inc hl
+    
 
+.turnon
     ld hl, $FF47
     ld [hl], %11100100 ; set bg palette
 
