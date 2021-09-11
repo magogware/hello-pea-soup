@@ -4,40 +4,38 @@ section "start", rom0[$100]
 
 section "home", rom0[$150]
 Home:
-    ;di
+    di
     ld hl, $FF41
-.wait            ; wait until we're in lcd mode 2
+.wait_vblank            ; wait until we're in lcd mode 2
     bit 0, [hl]
-    jp z, .wait
-.wait2
+    jp z, .wait_vblank
     bit 1, [hl]
-    jp nz, .wait
-.begin
+    jp nz, .wait_vblank
+.lcd_off
     ld hl, $FF40
     ld [hl], %01110001 ; turn lcd off
 
     ld de, Font ; set de to font data
     ld hl, $8010 ; set hl to VRAM + 16 (so we have a blank tile)
     ld b, 27
-.tile
+
+; copy tile (font) data to vram
+.tile_loop
     ld c, 16 ; loop through 16 bytes per tile
     dec b
-    jr z, .done
-.row
+    jr z, .letters
+.row_loop
     ld a, [de]
     inc de
     ld [hli], a
     dec c
-    jr nz, .row
-    jr z, .tile
-.done
-    ld hl, $FF42
-    ld [hl], 0 ; set scroll x to 0
-    ld hl, $FF43
-    ld [hl], 0 ; set scroll y to 0
+    jr nz, .row_loop
+    jr z, .tile_loop
+
+    ; load bg tile data
 .letters 
     ld hl, $9800
-    ld [hl], 12 ; load bg tile data
+    ld [hl], 12 
     inc hl
     ld [hl], 15
     inc hl
@@ -71,14 +69,23 @@ Home:
     ld [hl], 16
     inc hl
     
+.lcd_on
+    ld hl, $FF42
+    ld [hl], 0 ; set scroll x to 0
+    ld hl, $FF43
+    ld [hl], 0 ; set scroll y to 0
 
-.turnon
     ld hl, $FF47
     ld [hl], %11100100 ; set bg palette
 
     ld hl, $FF40
     ld [hl], %11010001 ; turn lcd on
-    nop
+    jr .die
+
+.die
+    halt 
+    nop 
+    jr .die
 
 section "font", rom0[$4000]
 Font:
