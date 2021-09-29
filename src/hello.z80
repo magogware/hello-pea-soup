@@ -1,16 +1,25 @@
+section "vblank", rom0[$40]
+    jp Interrupts.vblank
+
 section "start", rom0[$100]
     nop
     jp $150
 
 section "home", rom0[$150]
 Home:
-    di
-    ld hl, $FF41
-.wait_vblank            ; wait until we're in lcd mode 2
-    bit 1, [hl]
-    jp z, .wait_vblank
-    bit 0, [hl]
-    jp nz, .wait_vblank
+    ; di
+    ; copy empty function into vblank address
+    ld hl, Addresses.vblank
+    ld de, Vblank.empty
+    ld a, d
+    ld [hli], a
+    ld a, e
+    ld [hl], a
+
+    ld hl, $FFFF
+    set 0, [hl]
+    ei ;enable vblank interrupts
+    halt
 .lcd_off
     ld hl, $FF40
     ld [hl], %01110001 ; turn lcd off
@@ -80,32 +89,45 @@ Home:
 
     ld hl, $FF40
     ld [hl], %11010001 ; turn lcd on
-    jr .scroll
+
+    ; copy scroll function into vblank address
+    ld hl, Addresses.vblank
+    ld de, Vblank.scroll
+    ld a, d
+    ld [hli], a
+    ld a, e
+    ld [hl], a
 
 .scroll
-    ld a, 0
-    ld hl, $FF41
-.wait_vblank_2            ; wait until we're in lcd mode 2
-    bit 1, [hl]
-    jp z, .wait_vblank_2
-    bit 0, [hl]
-    jp nz, .wait_vblank_2
-.adjust
-    ;inc a
-    ;cp a, 180
-    ;jp nz, .wait_no_vblank
-    ;ld a, 0
+    halt
+    nop
+    jr .scroll
+
+Interrupts:
+.vblank
+    ; load vblank address and jump
+    ld hl, Addresses.vblank
+    ld d, [hl]
+    inc hl
+    ld e, [hl]
+    ld h, d
+    ld l, e
+    jp hl
+
+Vblank:
+.empty
+    nop 
+    reti
+.scroll
     ld hl, $FF42
     inc [hl]
-    ;ld hl, $FF43
-    ;inc [hl]
-    ld hl, $FF41
-.wait_no_vblank
-    bit 1, [hl]
-    jp nz, .wait_no_vblank
-    bit 0, [hl]
-    jp z, .wait_no_vblank
-    jp .wait_vblank_2
+    reti
+
+LOAD "Vblank address", WRAM0[$C000]
+Addresses:
+.vblank
+    DS 1
+ENDL
 
 section "font", rom0[$4000]
 Font:
